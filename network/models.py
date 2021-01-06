@@ -4,18 +4,18 @@ from django.db import models
 
 class User(AbstractUser):
     country = models.TextField(max_length=56, blank=True, null=True)
-    followed_by_count = models.PositiveIntegerField(default=0)
-    following_count = models.PositiveIntegerField(default=0)
-    posts_count = models.PositiveIntegerField(default=0)
+    followers_counter = models.PositiveIntegerField(default=0)
+    watched_counter = models.PositiveIntegerField(default=0)
+    posts_counter = models.PositiveIntegerField(default=0)
 
     def get_number_of_posts(self):
-        return self.posts_count
+        return self.posts_counter
 
     def get_number_of_followers(self):
-        return self.followed_by_count
+        return self.followers_counter
 
     def get_number_of_followed_by_user(self):
-        return self.following_count
+        return self.watched_counter
 
 
 class Post(models.Model):
