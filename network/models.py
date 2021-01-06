@@ -17,6 +17,24 @@ class User(AbstractUser):
     def get_number_of_followed_by_user(self):
         return self.watched_counter
 
+    def increment_number_of_posts(self):
+        self.posts_counter += 1
+
+    def increment_number_of_followers(self):
+        self.followers_counter += 1
+
+    def increment_number_of_followed_by_user(self):
+        self.watched_counter += 1
+
+    def decrement_number_of_posts(self):
+        self.posts_counter -= 1
+
+    def decrement_number_of_followers(self):
+        self.followers_counter -= 1
+
+    def decrement_number_of_followed_by_user(self):
+        self.watched_counter -= 1
+
 
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
