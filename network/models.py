@@ -3,6 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
+    country = models.TextField(max_length=56, blank=True, null=True)
     followed_by_count = models.PositiveIntegerField(default=0)
     following_count = models.PositiveIntegerField(default=0)
     posts_count = models.PositiveIntegerField(default=0)
