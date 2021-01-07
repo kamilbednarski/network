@@ -167,7 +167,7 @@ class PostTestCase(TestCase):
 
         self.assertEqual(status, True)
 
-    def test_posts_serialization(self):
+    def test_posts_serialization_is_valid_json(self):
         '''
         Checks if serialize function of Post object returns valid JSON object
         '''

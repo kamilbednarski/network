@@ -72,6 +72,9 @@ class Relation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
     users_friend = models.ManyToManyField(User, related_name='friend')
 
+    def get_user(self):
+        return self.user
+
     def get_users_friend(self):
         users_friend = User.objects.get(id=self.id)
         return users_friend
