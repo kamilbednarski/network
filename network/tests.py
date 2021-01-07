@@ -1,4 +1,5 @@
 import re
+import json
 from django.test import TestCase
 from network.models import User, Post, Like, Relation
 
@@ -167,4 +168,17 @@ class PostTestCase(TestCase):
         self.assertEqual(status, True)
 
     def test_posts_serialization(self):
-        pass
+        '''
+        Checks if serialize function of Post object returns valid JSON object
+        '''
+        self.set_up_new_test_post()
+        test_post = Post.objects.get(id=1)
+        json_response = test_post.serialize()
+
+        is_valid_json_status = True
+        try:
+            json_response = json.loads(json_response)
+        except ValueError:
+            is_valid_json_status = False
+
+        self.assertEqual(is_valid_json_status, True)
