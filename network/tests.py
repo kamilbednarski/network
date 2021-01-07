@@ -173,7 +173,8 @@ class PostTestCase(TestCase):
         '''
         self.set_up_new_test_post()
         test_post = Post.objects.get(id=1)
-        json_response = test_post.serialize()
+
+        json_response = json.dumps(str(test_post.serialize()))
 
         is_valid_json_status = True
         try:

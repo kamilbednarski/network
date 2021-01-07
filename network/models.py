@@ -43,11 +43,12 @@ class Post(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def serialize(self):
-        return json.dumps({
-            "id": str(self.id),
-            "user": str(self.user_id),
-            "content": str(self.content),
-            "timestamp": str(self.timestamp)
+        return ({
+            "id": self.id,
+            "user": User.objects.get(id=self.user_id).username,
+            "user_id": self.user_id,
+            "content": self.content,
+            "date_added": self.timestamp.strftime("%b %-d %Y, %-I:%M %p")
         })
 
     def __str__(self):

@@ -33,6 +33,7 @@ def login_view(request):
         return render(request, "network/login.html")
 
 
+@login_required
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
@@ -63,3 +64,14 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+
+
+@login_required
+def all_posts_view(request):
+    posts = Post.objects.all()
+    return JsonResponse([post.serialize() for post in posts], safe=False)
+
+
+@login_required
+def following_posts_view(request):
+    pass
