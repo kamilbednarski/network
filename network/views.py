@@ -73,5 +73,12 @@ def all_posts_view(request):
 
 
 @login_required
-def following_posts_view(request):
-    pass
+def single_post_view(request, post_id):
+    try:
+        post = Post.objects.get(id=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({
+            #TODO create custom page for that exception/message it on main page
+            "error": "Post with that id does not exist."
+        }, safe=False)
+    return JsonResponse(post.serialize())
