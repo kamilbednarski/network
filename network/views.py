@@ -73,7 +73,6 @@ def all_posts_view(request):
     return JsonResponse([post.serialize() for post in posts], safe=False)
 
 
-@login_required
 def single_post_view(request, post_id):
     # Get Post object with matching id
     try:
