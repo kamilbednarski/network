@@ -66,7 +66,6 @@ def register_view(request):
         return render(request, "network/register.html")
 
 
-@login_required
 def all_posts_view(request):
     # Get all Post objects
     posts = Post.objects.all()
