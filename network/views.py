@@ -9,7 +9,7 @@ from django.urls import reverse
 from .models import User, Post, Like, Relation
 
 
-def index(request):
+def index_view(request):
     return render(request, "network/index.html")
 
 
@@ -39,7 +39,7 @@ def logout_view(request):
     return HttpResponseRedirect(reverse("index"))
 
 
-def register(request):
+def register_view(request):
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
@@ -68,17 +68,26 @@ def register(request):
 
 @login_required
 def all_posts_view(request):
+    # Get all Post objects
     posts = Post.objects.all()
+    # Return posts as JSON
     return JsonResponse([post.serialize() for post in posts], safe=False)
 
 
 @login_required
 def single_post_view(request, post_id):
+    # Get Post object with matching id
     try:
         post = Post.objects.get(id=post_id)
+    # If does not exist, return error message as JSON
     except Post.DoesNotExist:
         return JsonResponse({
             #TODO create custom page for that exception/message it on main page
             "error": "Post with that id does not exist."
         }, safe=False)
+    # If does exist, return as JSON
     return JsonResponse(post.serialize())
+
+@login_required
+def compose_new_post_view(request):
+    pass
