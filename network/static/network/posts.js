@@ -3,10 +3,19 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('#posts-view').innerHTML = ''
         document.querySelector('#body-view').style.display = 'none'
         document.querySelector('#posts-view').style.display = 'block'
-        loadPosts(1)
+
+        getLatestPostId().then(response => loadPosts(response.id))
+
         document.querySelector('#navbar-toggler-button').click()
     })
 });
+
+async function getLatestPostId() {
+    const response = await fetch('/post/all/latestid', { method: 'GET' })
+    const latestPostData = await response.json()
+    return latestPostData
+}
+
 
 async function loadSinglePost(postId) {
     const response = await fetch(`/post/id/${postId}`, { method: 'GET' })
@@ -42,12 +51,21 @@ async function loadSinglePost(postId) {
 
 function loadPosts(postId) {
     let startNumber = postId
-    let endNumber = startNumber + 9
+    let endNumber = startNumber - 9
+
+    if(endNumber < 1) {
+        endNumber = 1
+    }
 
     const loadMultiplePosts = async _ => {
-        for(let i = startNumber; i <= endNumber; i++) {
+        for(let i = startNumber; i >= endNumber; i--) {
             const loadedPost = await loadSinglePost(startNumber)
-            startNumber++
+            startNumber--
+            if (startNumber === 0) {
+                return
+            }
+            // TODO: stop loading after reaching last post
+            console.log('from loadmultiple - startNumber: ' + startNumber)
         }
     }
 
@@ -58,4 +76,5 @@ function loadPosts(postId) {
             loadPosts(startNumber)
         }
     })
+
 }

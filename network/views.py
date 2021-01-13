@@ -67,10 +67,12 @@ def register_view(request):
 
 
 def latest_post_id_view(request):
+    # Get all Post objects
     posts = Post.objects.all()
+    # Get id
     latest_post_id = posts[len(posts)-1].id
-    print(latest_post_id)
-    return JsonResponse({"id": latest_post_id})
+    # Return id as JSON
+    return JsonResponse({"id": int(latest_post_id)})
 
 
 def all_posts_view(request):
