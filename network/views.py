@@ -66,6 +66,13 @@ def register_view(request):
         return render(request, "network/register.html")
 
 
+def latest_post_id_view(request):
+    posts = Post.objects.all()
+    latest_post_id = posts[len(posts)-1].id
+    print(latest_post_id)
+    return JsonResponse({"id": latest_post_id})
+
+
 def all_posts_view(request):
     # Get all Post objects
     posts = Post.objects.all()
