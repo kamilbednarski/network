@@ -4,11 +4,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('#body-view').style.display = 'none'
         document.querySelector('#posts-view').style.display = 'block'
 
-        getLatestPostId().then(response => loadPosts(response.id))
+        getLatestPostId()
+        .then(response => loadPosts(response.id))
 
         document.querySelector('#navbar-toggler-button').click()
     })
 });
+
 
 async function getLatestPostId() {
     const response = await fetch('/post/all/latestid', { method: 'GET' })
@@ -46,35 +48,40 @@ async function loadSinglePost(postId) {
         userAndDateContainer.append(userContainer, dateContainer)
         postContainer.append(userAndDateContainer, contentContainer)
         mainPostsContainer.append(postContainer)
+
+        return post['id']
     }
 }
 
-function loadPosts(postId) {
-    let startNumber = postId
+
+async function loadMultiplePosts(startNumber, endNumber) {
+    let nextPostId
+    for (let i = startNumber; i >= endNumber; i--) {
+        const loadedPostId = await loadSinglePost(i)
+        console.log('loaded post: ' + loadedPostId)
+        //startNumber--
+        nextPostId = loadedPostId - 1
+        console.log('startNumber: ' + nextPostId)
+    }
+    console.log('NEW START NUMBER: ' + nextPostId)
+    return nextPostId
+}
+
+
+function loadPosts(firstPostId) {
+    let startNumber = firstPostId
     let endNumber = startNumber - 9
 
     if(endNumber < 1) {
         endNumber = 1
     }
 
-    const loadMultiplePosts = async _ => {
-        for(let i = startNumber; i >= endNumber; i--) {
-            const loadedPost = await loadSinglePost(startNumber)
-            startNumber--
-            if (startNumber === 0) {
-                return
+    loadMultiplePosts(startNumber, endNumber).then(newStartNumber => {
+        console.log('LAST LOADED ID:' + newStartNumber)
+        window.addEventListener('scroll', () => {
+            if(window.scrollY + window.innerHeight >= document.documentElement.scrollHeight) {
+                loadPosts(newStartNumber)
             }
-            // TODO: stop loading after reaching last post
-            console.log('from loadmultiple - startNumber: ' + startNumber)
-        }
-    }
-
-    loadMultiplePosts()
-
-    window.addEventListener('scroll', () => {
-        if(window.scrollY + window.innerHeight >= document.documentElement.scrollHeight) {
-            loadPosts(startNumber)
-        }
+        })
     })
-
 }
