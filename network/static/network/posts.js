@@ -1,29 +1,40 @@
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelector('#load-all-posts').addEventListener('click' , () => {
-        document.querySelector('#posts-view').innerHTML = ''
-        document.querySelector('#body-view').style.display = 'none'
-        document.querySelector('#posts-view').style.display = 'block'
 
-        getLatestPostId()
-        .then(response => loadPosts(response.id))
-
-        document.querySelector('#navbar-toggler-button').click()
+    document.querySelector('#load-all-posts')
+    .addEventListener('click', async function infinitePostLoader() {
+        showHideNavbar()
+        const latestPostId = await getLatestPostId()
+        const lastLoadedPost = await getPosts(latestPostId)
     })
 });
 
 
-async function getLatestPostId() {
-    const response = await fetch('/post/all/latestid', { method: 'GET' })
-    const latestPostData = await response.json()
-    return latestPostData
+function showPostsView() {
+    document.querySelector('#posts-view').innerHTML = ''
+    document.querySelector('#body-view').style.display = 'none'
+    document.querySelector('#posts-view').style.display = 'block'
+}
+
+function showHideNavbar() {
+    document.querySelector('#navbar-toggler-button').click()
 }
 
 
-async function loadSinglePost(postId) {
+async function getLatestPostId() {
+    const response = await fetch('/post/all/latestid', { method: 'GET' })
+    const latestPostId = (await response.json()).id
+    return latestPostId
+}
+
+
+async function getSinglePost(postId) {
     const response = await fetch(`/post/id/${postId}`, { method: 'GET' })
     const post = await response.json()
+    let loadedPostId = post['id']
+
     console.log(post['id'])
-    if (post['id'] != undefined) {
+
+    if (loadedPostId != undefined) {
         let mainPostsContainer = document.querySelector('#posts-view')
 
         let postContainer = document.createElement('div')
@@ -49,39 +60,44 @@ async function loadSinglePost(postId) {
         postContainer.append(userAndDateContainer, contentContainer)
         mainPostsContainer.append(postContainer)
 
-        return post['id']
     }
+    return loadedPostId
 }
 
 
-async function loadMultiplePosts(startNumber, endNumber) {
-    let nextPostId
-    for (let i = startNumber; i >= endNumber; i--) {
-        const loadedPostId = await loadSinglePost(i)
-        console.log('loaded post: ' + loadedPostId)
-        //startNumber--
-        nextPostId = loadedPostId - 1
-        console.log('startNumber: ' + nextPostId)
-    }
-    console.log('NEW START NUMBER: ' + nextPostId)
-    return nextPostId
-}
+async function getPosts(startingPostId) {
+    const POSTS_PER_PAGE = 10
 
+    showPostsView()
 
-function loadPosts(firstPostId) {
-    let startNumber = firstPostId
-    let endNumber = startNumber - 9
+    let firstPostId = startingPostId
+    let lastPostId = firstPostId - POSTS_PER_PAGE
+    let lastLoadedPostId
 
-    if(endNumber < 1) {
-        endNumber = 1
+    if(lastPostId < 1) {lastPostId = 1}
+
+    if(firstPostId == 1) {
+        lastLoadedPostId = await getSinglePost(firstPostId)
+    } else {
+        for(let i = firstPostId; i > lastPostId; i--) {
+            const loadedPostId = await getSinglePost(i)
+            lastLoadedPostId = loadedPostId
+        }
     }
 
-    loadMultiplePosts(startNumber, endNumber).then(newStartNumber => {
-        console.log('LAST LOADED ID:' + newStartNumber)
+    if(lastLoadedPostId > 1) {
         window.addEventListener('scroll', () => {
             if(window.scrollY + window.innerHeight >= document.documentElement.scrollHeight) {
-                loadPosts(newStartNumber)
+                getPosts(lastLoadedPostId - 1, POSTS_PER_PAGE)
             }
         })
-    })
+    }
+
+    return lastLoadedPostId
 }
+
+// window.addEventListener('scroll', () => {
+//     if(window.scrollY + window.innerHeight >= document.documentElement.scrollHeight) {
+//         getPosts(lastLoadedPostId - 1, POSTS_PER_PAGE)
+//     }
+// })
