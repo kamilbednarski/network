@@ -1,11 +1,34 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    var postsViewState = {
+        lastLoadedPostId: 0,
+        isLoading: false
+    };
 
     document.querySelector('#load-all-posts')
-    .addEventListener('click', async function infinitePostLoader() {
-        showHideNavbar()
-        const latestPostId = await getLatestPostId()
-        const lastLoadedPost = await getPosts(latestPostId)
-    })
+        .addEventListener('click', async function infinitePostLoader() {
+            showHideNavbar();
+            showPostsView();
+            const latestPostId = await getLatestPostId()
+            postsViewState.isLoading = true;
+            const lastLoadedPost = await getPosts(latestPostId)
+            postsViewState.lastLoadedPostId = lastLoadedPost;
+            postsViewState.isLoading = false;
+        });
+
+    const postsViewElement = document.querySelector('#posts-view');
+    postsViewElement.addEventListener('scroll', async () => {
+        if (postsViewElement.scrollTop + postsViewElement.clientHeight >= postsViewElement.scrollHeight) {
+            const thereAreMorePostsToLoad = postsViewState.lastLoadedPostId > 1;
+
+            if (!postsViewState.isLoading && thereAreMorePostsToLoad) {
+                console.log("Get additional posts");
+                postsViewState.isLoading = true;
+                const lastLoadedPost = await getPosts(postsViewState.lastLoadedPostId - 1)
+                postsViewState.lastLoadedPostId = lastLoadedPost;
+                postsViewState.isLoading = false;
+            }
+        }
+    });
 });
 
 
@@ -53,7 +76,7 @@ async function getSinglePost(postId) {
         contentContainer.classList.add('p-3')
 
         userContainer.innerText = '@' + post['user'] + ' · '
-        dateContainer.innerText = post['date_added']
+        dateContainer.innerText = post.date_added + ' id:' + post.id
         contentContainer.innerText = post['content']
 
         userAndDateContainer.append(userContainer, dateContainer)
@@ -66,31 +89,27 @@ async function getSinglePost(postId) {
 
 
 async function getPosts(startingPostId) {
+    if(startingPostId < 1) {
+        throw new Error("StartingPostId must be greater or equal 0.")
+    }
+
     const POSTS_PER_PAGE = 10
 
-    showPostsView()
+    //showPostsView()
 
     let firstPostId = startingPostId
-    let lastPostId = firstPostId - POSTS_PER_PAGE
+    let lastPostId = firstPostId - POSTS_PER_PAGE + 1
     let lastLoadedPostId
 
-    if(lastPostId < 1) {lastPostId = 1}
+    if (lastPostId < 1) { lastPostId = 1 }
 
-    if(firstPostId == 1) {
+    if (firstPostId == 1) {
         lastLoadedPostId = await getSinglePost(firstPostId)
     } else {
-        for(let i = firstPostId; i > lastPostId; i--) {
+        for (let i = firstPostId; i >= lastPostId; i--) {
             const loadedPostId = await getSinglePost(i)
             lastLoadedPostId = loadedPostId
         }
-    }
-
-    if(lastLoadedPostId > 1) {
-        window.addEventListener('scroll', () => {
-            if(window.scrollY + window.innerHeight >= document.documentElement.scrollHeight) {
-                getPosts(lastLoadedPostId - 1, POSTS_PER_PAGE)
-            }
-        })
     }
 
     return lastLoadedPostId

@@ -1,4 +1,9 @@
 body {
   background-color: white;
 }
+
+.posts-view {
+  overflow: auto;
+  height: 100vh;
+}
 /*# sourceMappingURL=styles.css.map */

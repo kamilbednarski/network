@@ -2,3 +2,8 @@ $background-color: white;
 body {
     background-color: $background-color;
 }
+
+.posts-view {
+    overflow: auto;
+    height: 100vh;
+}
