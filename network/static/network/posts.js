@@ -89,7 +89,7 @@ async function getSinglePost(postId) {
 
 
 async function getPosts(startingPostId) {
-    if(startingPostId < 1) {
+    if (startingPostId < 1) {
         throw new Error("StartingPostId must be greater or equal 0.")
     }
 

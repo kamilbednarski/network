@@ -8,6 +8,7 @@ class UserTestCase(TestCase):
     '''
     Tests for User model.
     '''
+
     def set_up_new_test_user(self):
         '''
         Helper method to create necessary User object
@@ -18,7 +19,6 @@ class UserTestCase(TestCase):
             email='testuser@testcase.com',
             password='testpassword'
         )
-
 
     def set_up_new_test_users(self):
         '''
@@ -37,7 +37,6 @@ class UserTestCase(TestCase):
             password='testpassword'
         )
 
-
     def test_users_were_correctly_created(self):
         '''
         Checks if users were created.
@@ -45,7 +44,6 @@ class UserTestCase(TestCase):
         self.set_up_new_test_users()
         first_test_user = User.objects.get(username='firsttestuser')
         second_test_user = User.objects.get(username='secondtestuser')
-
 
     def test_users_variables_have_correct_values(self):
         '''
@@ -60,7 +58,6 @@ class UserTestCase(TestCase):
 
         self.assertEqual(first_test_user.email, 'testuser1@testcase.com')
         self.assertEqual(second_test_user.email, 'testuser2@testcase.com')
-
 
     def test_users_posts_counter(self):
         '''
@@ -81,7 +78,6 @@ class UserTestCase(TestCase):
         test_user.decrement_number_of_posts()
         self.assertEqual(test_user.get_number_of_posts(), 0)
 
-
     def test_users_watched_counter(self):
         '''
         Checks watched_counter variable
@@ -93,14 +89,16 @@ class UserTestCase(TestCase):
         self.set_up_new_test_user()
         test_user = User.objects.get(username='testuser')
 
-        self.assertEqual(test_user.get_number_of_users_followed_by_this_user(), 0)
+        self.assertEqual(
+            test_user.get_number_of_users_followed_by_this_user(), 0)
 
         test_user.increment_number_of_users_followed_by_this_user()
-        self.assertEqual(test_user.get_number_of_users_followed_by_this_user(), 1)
+        self.assertEqual(
+            test_user.get_number_of_users_followed_by_this_user(), 1)
 
         test_user.decrement_number_of_users_followed_by_this_user()
-        self.assertEqual(test_user.get_number_of_users_followed_by_this_user(), 0)
-
+        self.assertEqual(
+            test_user.get_number_of_users_followed_by_this_user(), 0)
 
     def test_users_followers_counter(self):
         '''
@@ -126,6 +124,7 @@ class PostTestCase(TestCase):
     '''
     Tests for Post model.
     '''
+
     def set_up_new_test_user(self):
         '''
         Helper method to create necessary User objects
@@ -136,7 +135,6 @@ class PostTestCase(TestCase):
             email='testuser@testcase.com',
             password='testpassword'
         )
-
 
     def set_up_new_test_post(self):
         '''
@@ -151,14 +149,12 @@ class PostTestCase(TestCase):
             content='This is test content of test post.'
         )
 
-
     def test_post_was_correctly_created(self):
         '''
         Checks if post was created correctly.
         '''
         self.set_up_new_test_post()
         test_post = Post.objects.get(id=1)
-
 
     def test_posts_content_variable_has_correct_value(self):
         '''
@@ -167,7 +163,8 @@ class PostTestCase(TestCase):
         self.set_up_new_test_post()
         test_post = Post.objects.get(id=1)
 
-        self.assertEqual(test_post.content, 'This is test content of test post.')
+        self.assertEqual(test_post.content,
+                         'This is test content of test post.')
 
     def test_posts_timestamp_is_valid(self):
         '''

@@ -97,7 +97,8 @@ class Like(models.Model):
 
 
 class Relation(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='user')
     users_friend = models.ManyToManyField(User, related_name='friend')
 
     def get_user(self):

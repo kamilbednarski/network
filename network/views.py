@@ -89,11 +89,12 @@ def single_post_view(request, post_id):
     # If does not exist, return error message as JSON
     except Post.DoesNotExist:
         return JsonResponse({
-            #TODO create custom page for that exception/message it on main page
+            # TODO create custom page for that exception/message it on main page
             "error": "Post with that id does not exist."
         }, safe=False)
     # If does exist, return as JSON
     return JsonResponse(post.serialize())
+
 
 @login_required
 def compose_new_post_view(request):
