@@ -67,36 +67,86 @@ def register_view(request):
 
 
 def latest_post_id_view(request):
+    '''
+    Returns JSON response with value of id of latest post.
+    _____________________________________________
+    If post not found, returns JSON response with error: Post not found.
+    '''
     if request.method == "GET":
-        # Get all Post objects
-        posts = Post.objects.all()
-        # Get id
-        latest_post_id = posts[len(posts)-1].id
-        # Return id as JSON
-        return JsonResponse({"id": int(latest_post_id)})
+        try:
+            post = Post.objects.latest('id')
+        except Post.DoesNotExist:
+            return JsonResponse({
+                "error": "Post not found."
+            }, safe=False, status=404)
+        latest_post_id = int(post.id)
+        return JsonResponse({
+            "id": latest_post_id
+            }, safe=False, status=200)
 
 
 def all_posts_view(request):
     if request.method == "GET":
-        # Get all Post objects
         posts = Post.objects.all()
-        # Return posts as JSON
         return JsonResponse([post.serialize() for post in posts], safe=False)
 
 
 def single_post_view(request, post_id):
+    '''
+    Returns JSON response, depending on what HTTP method was passed in request:
+    - for method GET:
+        JSON with post data with 'id' matching 'post_id' passed in request,
+    - for method PUT:
+        JSON with confirmaton message that post was succesfully updated,
+    - for method DELETE:
+        JSON with confirmation message that post was succesfully deleted.
+    _____________________________________________
+    If post with matching id not found,
+    returns JSON response with error: Post not found.
+    Additionally for PUT and DELETE methods, if user was not authenticated
+    or user does not have permissions required,
+    returns JSON response with error: Permission denied.
+    '''
+    try:
+        post = Post.objects.get(id=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({
+            "error": "Post not found."
+        }, safe=False, status=404)
+
     if request.method == "GET":
-        # Get Post object with matching id
-        try:
-            post = Post.objects.get(id=post_id)
-        # If does not exist, return error message as JSON
-        except Post.DoesNotExist:
-            return JsonResponse({
-                # TODO create custom page for that exception/message it on main page
-                "error": "Post with that id does not exist."
-            }, safe=False, status=404)
-        # If does exist, return as JSON
         return JsonResponse(post.serialize())
+
+    post_owner = User.objects.get(id=post.user_id)
+
+    if request.method == "PUT":
+        if request.user.is_authenticated == True:
+            if request.user == post_owner:
+                return
+            else:
+                return JsonResponse({
+                    "error": "Permission denied."
+                }, safe=False, status=403)
+        else:
+            return JsonResponse({
+                "error": "Permission denied."
+            }, safe=False, status=403)
+
+    if request.method == "DELETE":
+        if request.user.is_authenticated == True:
+            if request.user == post_owner:
+                post.delete()
+                return JsonResponse({
+                    "message": "Post deleted successfully."
+                }, safe=False, status=200)
+            else:
+                return JsonResponse({
+                    "error": "Permission denied."
+                }, safe=False, status=403)
+        else:
+            return JsonResponse({
+                "error": "Permission denied."
+            }, safe=False, status=403)
 
 
 @login_required
