@@ -67,33 +67,36 @@ def register_view(request):
 
 
 def latest_post_id_view(request):
-    # Get all Post objects
-    posts = Post.objects.all()
-    # Get id
-    latest_post_id = posts[len(posts)-1].id
-    # Return id as JSON
-    return JsonResponse({"id": int(latest_post_id)})
+    if request.method == "GET":
+        # Get all Post objects
+        posts = Post.objects.all()
+        # Get id
+        latest_post_id = posts[len(posts)-1].id
+        # Return id as JSON
+        return JsonResponse({"id": int(latest_post_id)})
 
 
 def all_posts_view(request):
-    # Get all Post objects
-    posts = Post.objects.all()
-    # Return posts as JSON
-    return JsonResponse([post.serialize() for post in posts], safe=False)
+    if request.method == "GET":
+        # Get all Post objects
+        posts = Post.objects.all()
+        # Return posts as JSON
+        return JsonResponse([post.serialize() for post in posts], safe=False)
 
 
 def single_post_view(request, post_id):
-    # Get Post object with matching id
-    try:
-        post = Post.objects.get(id=post_id)
-    # If does not exist, return error message as JSON
-    except Post.DoesNotExist:
-        return JsonResponse({
-            # TODO create custom page for that exception/message it on main page
-            "error": "Post with that id does not exist."
-        }, safe=False)
-    # If does exist, return as JSON
-    return JsonResponse(post.serialize())
+    if request.method == "GET":
+        # Get Post object with matching id
+        try:
+            post = Post.objects.get(id=post_id)
+        # If does not exist, return error message as JSON
+        except Post.DoesNotExist:
+            return JsonResponse({
+                # TODO create custom page for that exception/message it on main page
+                "error": "Post with that id does not exist."
+            }, safe=False, status=404)
+        # If does exist, return as JSON
+        return JsonResponse(post.serialize())
 
 
 @login_required

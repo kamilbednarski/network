@@ -1,6 +1,7 @@
 import re
 import json
 import unittest
+from django.urls import reverse
 from django.test import TestCase, Client
 from network.models import User, Post, Like, Relation
 
@@ -10,29 +11,18 @@ class UserTestCase(TestCase):
     Tests for User model.
     '''
 
-    def set_up_new_test_user(self):
-        '''
-        Helper method to create necessary User object
-        for purpouse of testing class User.
-        '''
-        test_user = User.objects.create(
+    def setUp(self):
+        self.test_user = User.objects.create(
             username='testuser',
             email='testuser@testcase.com',
             password='testpassword'
         )
-
-    def set_up_new_test_users(self):
-        '''
-        Helper method to create necessary User object
-        for purpouse of testing class User.
-        '''
-        first_test_user = User.objects.create(
+        self.first_test_user = User.objects.create(
             username='firsttestuser',
             email='testuser1@testcase.com',
             password='testpassword'
         )
-
-        second_test_user = User.objects.create(
+        self.second_test_user = User.objects.create(
             username='secondtestuser',
             email='testuser2@testcase.com',
             password='testpassword'
@@ -42,7 +32,6 @@ class UserTestCase(TestCase):
         '''
         Checks if users were created.
         '''
-        self.set_up_new_test_users()
         first_test_user = User.objects.get(username='firsttestuser')
         second_test_user = User.objects.get(username='secondtestuser')
 
@@ -50,7 +39,6 @@ class UserTestCase(TestCase):
         '''
         Checks if created users' variables have correct values.
         '''
-        self.set_up_new_test_users()
         first_test_user = User.objects.get(username='firsttestuser')
         second_test_user = User.objects.get(username='secondtestuser')
 
@@ -68,7 +56,6 @@ class UserTestCase(TestCase):
         - 'increment_number_of_posts'
         - 'decrement_number_of_posts'
         '''
-        self.set_up_new_test_user()
         test_user = User.objects.get(username='testuser')
 
         self.assertEqual(test_user.get_number_of_posts(), 0)
@@ -87,7 +74,6 @@ class UserTestCase(TestCase):
         - 'increment_number_of_users_followed_by_this_user'
         - 'decrement_number_of_users_followed_by_this_user'
         '''
-        self.set_up_new_test_user()
         test_user = User.objects.get(username='testuser')
 
         self.assertEqual(
@@ -109,7 +95,6 @@ class UserTestCase(TestCase):
         - 'increment_number_of_users_followed_by_this_user'
         - 'decrement_number_of_users_followed_by_this_user'
         '''
-        self.set_up_new_test_user()
         test_user = User.objects.get(username='testuser')
 
         self.assertEqual(test_user.get_number_of_followers(), 0)
@@ -126,27 +111,14 @@ class PostTestCase(TestCase):
     Tests for Post model.
     '''
 
-    def set_up_new_test_user(self):
-        '''
-        Helper method to create necessary User objects
-        for purpouse of testing class Post.
-        '''
-        test_user = User.objects.create(
+    def setUp(self):
+        self.test_user = User.objects.create(
             username='testuser',
             email='testuser@testcase.com',
             password='testpassword'
         )
-
-    def set_up_new_test_post(self):
-        '''
-        Helper method to create necessary Post objects
-        for purpouse of testing class Post.
-        '''
-        self.set_up_new_test_user()
-        test_user = User.objects.get(username='testuser')
-
-        test_post = Post.objects.create(
-            user=test_user,
+        self.test_post = Post.objects.create(
+            user=self.test_user,
             content='This is test content of test post.'
         )
 
@@ -154,14 +126,12 @@ class PostTestCase(TestCase):
         '''
         Checks if post was created correctly.
         '''
-        self.set_up_new_test_post()
         test_post = Post.objects.get(id=1)
 
     def test_post_object_content_variable_has_correct_value(self):
         '''
         Checks if created post's content variable has correct value.
         '''
-        self.set_up_new_test_post()
         test_post = Post.objects.get(id=1)
 
         self.assertEqual(test_post.content,
@@ -171,7 +141,6 @@ class PostTestCase(TestCase):
         '''
         Checks if variable timestamp is valid timestamp.
         '''
-        self.set_up_new_test_post()
         test_post = Post.objects.get(id=1)
         timestamp = str(test_post.timestamp)
 
@@ -185,7 +154,6 @@ class PostTestCase(TestCase):
         '''
         Checks if serialize function of Post object returns valid JSON object
         '''
-        self.set_up_new_test_post()
         test_post = Post.objects.get(id=1)
 
         json_response = json.dumps(str(test_post.serialize()))
@@ -199,11 +167,107 @@ class PostTestCase(TestCase):
         self.assertEqual(is_valid_json_status, True)
 
 
-# class SimpleTest(unittest.TestCase):
-#     def setUp(self):
-#         self.client = Client()
+class LatestPostIdViewTestCase(TestCase):
+    '''
+    Tests for latest_post_id_view.
+    '''
 
-#     def test_latest(self):
-#         response = self.client.get('/post/all/latestid')
-#         print('RESPONSE CODE:' + str(response.status_code))
-#         self.assertEqual(response.status_code, 200)
+    def setUp(self):
+        self.test_user = User.objects.create(
+            username='testuser',
+            email='testuser@testcase.com',
+            password='testpassword'
+        )
+        self.first_test_post = Post.objects.create(
+            user=self.test_user,
+            content='This is test content of first test post.'
+        )
+        self.second_test_post = Post.objects.create(
+            user=self.test_user,
+            content='This is test content of second test post.'
+        )
+
+    def test_latest_post_id_view_returns_correct_status_code_with_method_GET(self):
+        '''
+        Checks if latest_post_id_view returns
+        correct http status code, when used with GET method.
+        '''
+        response = self.client.get(reverse('view_latest_post_id'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_latest_post_id_view_returns_correct_json_object_with_method_GET(self):
+        '''
+        Checks if latest_post_id_view returns
+        correct json object, when used with GET method.
+        '''
+        response = self.client.get(reverse('view_latest_post_id'))
+        self.assertEqual(response.json(), {'id': 2})
+
+    def test_latest_post_id_view_returns_json_object_with_correct_id_field_with_method_GET(self):
+        '''
+        Checks if latest_post_id_view returns
+        correct json object, when used with GET method.
+        '''
+        response = self.client.get(reverse('view_latest_post_id'))
+        self.assertEqual(response.json()['id'], 2)
+
+
+class SinglePostViewTestCase(TestCase):
+    '''
+    Tests for single_post_view.
+    '''
+
+    def setUp(self):
+        self.test_user = User.objects.create(
+            username='testuser',
+            email='testuser@testcase.com',
+            password='testpassword'
+        )
+        self.first_test_post = Post.objects.create(
+            user=self.test_user,
+            content='This is test content of first test post.'
+        )
+        self.second_test_post = Post.objects.create(
+            user=self.test_user,
+            content='This is test content of second test post.'
+        )
+
+    def test_single_post_view_returns_correct_status_code_with_method_GET(self):
+        '''
+        Checks if single_post_view returns
+        correct http status code 200, when used with GET method.
+        '''
+        response = self.client.get(reverse('view_single_post_by_id', args=[2]))
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_single_post_view_returns_valid_json_object_with_method_GET(self):
+        '''
+        Checks if single_post_view returns
+        valid json object, when used with GET method.
+        '''
+        response = self.client.get(reverse('view_single_post_by_id', args=[2]))
+
+        is_valid_json_status = True
+
+        try:
+            response = json.loads(json.dumps(str(response)))
+        except ValueError:
+            is_valid_json_status = False
+
+        self.assertEqual(is_valid_json_status, True)
+
+    def test_single_post_view_returns_correct_json_object_with_method_GET(self):
+        '''
+        Checks if single_post_view returns
+        correct json object, when used with GET method.
+        '''
+        first_response = self.client.get(
+            reverse('view_single_post_by_id', args=[1]))
+        second_response = self.client.get(
+            reverse('view_single_post_by_id', args=[2]))
+
+        self.assertEqual(first_response.json()[
+                         'content'], 'This is test content of first test post.')
+        self.assertEqual(second_response.json()[
+                         'content'], 'This is test content of second test post.')
