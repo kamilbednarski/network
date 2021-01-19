@@ -1,6 +1,7 @@
 import re
 import json
-from django.test import TestCase
+import unittest
+from django.test import TestCase, Client
 from network.models import User, Post, Like, Relation
 
 
@@ -37,7 +38,7 @@ class UserTestCase(TestCase):
             password='testpassword'
         )
 
-    def test_users_were_correctly_created(self):
+    def test_user_objects_were_correctly_created(self):
         '''
         Checks if users were created.
         '''
@@ -45,7 +46,7 @@ class UserTestCase(TestCase):
         first_test_user = User.objects.get(username='firsttestuser')
         second_test_user = User.objects.get(username='secondtestuser')
 
-    def test_users_variables_have_correct_values(self):
+    def test_user_object_variables_have_correct_values(self):
         '''
         Checks if created users' variables have correct values.
         '''
@@ -59,7 +60,7 @@ class UserTestCase(TestCase):
         self.assertEqual(first_test_user.email, 'testuser1@testcase.com')
         self.assertEqual(second_test_user.email, 'testuser2@testcase.com')
 
-    def test_users_posts_counter(self):
+    def test_user_object_posts_counter_variable_has_correct_values(self):
         '''
         Checks posts_counter variable
         and functions associated with that field:
@@ -78,7 +79,7 @@ class UserTestCase(TestCase):
         test_user.decrement_number_of_posts()
         self.assertEqual(test_user.get_number_of_posts(), 0)
 
-    def test_users_watched_counter(self):
+    def test_user_object_watched_counter_variable_has_correct_values(self):
         '''
         Checks watched_counter variable
         and functions associated with that field:
@@ -100,7 +101,7 @@ class UserTestCase(TestCase):
         self.assertEqual(
             test_user.get_number_of_users_followed_by_this_user(), 0)
 
-    def test_users_followers_counter(self):
+    def test_user_object_followers_counter_variable_has_correct_values(self):
         '''
         Checks followers_counter variable
         and functions associated with that field:
@@ -149,14 +150,14 @@ class PostTestCase(TestCase):
             content='This is test content of test post.'
         )
 
-    def test_post_was_correctly_created(self):
+    def test_post_object_was_correctly_created(self):
         '''
         Checks if post was created correctly.
         '''
         self.set_up_new_test_post()
         test_post = Post.objects.get(id=1)
 
-    def test_posts_content_variable_has_correct_value(self):
+    def test_post_object_content_variable_has_correct_value(self):
         '''
         Checks if created post's content variable has correct value.
         '''
@@ -166,7 +167,7 @@ class PostTestCase(TestCase):
         self.assertEqual(test_post.content,
                          'This is test content of test post.')
 
-    def test_posts_timestamp_is_valid(self):
+    def test_post_object_timestamp_variable_is_valid(self):
         '''
         Checks if variable timestamp is valid timestamp.
         '''
@@ -180,7 +181,7 @@ class PostTestCase(TestCase):
 
         self.assertEqual(status, True)
 
-    def test_posts_serialization_is_valid_json(self):
+    def test_post_object_serialization_method_returns_valid_json(self):
         '''
         Checks if serialize function of Post object returns valid JSON object
         '''
@@ -196,3 +197,13 @@ class PostTestCase(TestCase):
             is_valid_json_status = False
 
         self.assertEqual(is_valid_json_status, True)
+
+
+# class SimpleTest(unittest.TestCase):
+#     def setUp(self):
+#         self.client = Client()
+
+#     def test_latest(self):
+#         response = self.client.get('/post/all/latestid')
+#         print('RESPONSE CODE:' + str(response.status_code))
+#         self.assertEqual(response.status_code, 200)
