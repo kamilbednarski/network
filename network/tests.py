@@ -9,6 +9,10 @@ class UserTestCase(TestCase):
     Tests for User model.
     '''
     def set_up_new_test_user(self):
+        '''
+        Helper method to create necessary User object
+        for purpouse of testing class User.
+        '''
         test_user = User.objects.create(
             username='testuser',
             email='testuser@testcase.com',
@@ -17,6 +21,10 @@ class UserTestCase(TestCase):
 
 
     def set_up_new_test_users(self):
+        '''
+        Helper method to create necessary User object
+        for purpouse of testing class User.
+        '''
         first_test_user = User.objects.create(
             username='firsttestuser',
             email='testuser1@testcase.com',
@@ -78,29 +86,29 @@ class UserTestCase(TestCase):
         '''
         Checks watched_counter variable
         and functions associated with that field:
-        - 'get_number_of_followed_by_user'
-        - 'increment_number_of_followed_by_user'
-        - 'decrement_number_of_followed_by_user'
+        - 'get_number_of_users_followed_by_this_user'
+        - 'increment_number_of_users_followed_by_this_user'
+        - 'decrement_number_of_users_followed_by_this_user'
         '''
         self.set_up_new_test_user()
         test_user = User.objects.get(username='testuser')
 
-        self.assertEqual(test_user.get_number_of_followed_by_user(), 0)
+        self.assertEqual(test_user.get_number_of_users_followed_by_this_user(), 0)
 
-        test_user.increment_number_of_followed_by_user()
-        self.assertEqual(test_user.get_number_of_followed_by_user(), 1)
+        test_user.increment_number_of_users_followed_by_this_user()
+        self.assertEqual(test_user.get_number_of_users_followed_by_this_user(), 1)
 
-        test_user.decrement_number_of_followed_by_user()
-        self.assertEqual(test_user.get_number_of_followed_by_user(), 0)
+        test_user.decrement_number_of_users_followed_by_this_user()
+        self.assertEqual(test_user.get_number_of_users_followed_by_this_user(), 0)
 
 
     def test_users_followers_counter(self):
         '''
         Checks followers_counter variable
         and functions associated with that field:
-        - 'get_number_of_followed_by_user'
-        - 'increment_number_of_followed_by_user'
-        - 'decrement_number_of_followed_by_user'
+        - 'get_number_of_users_followed_by_this_user'
+        - 'increment_number_of_users_followed_by_this_user'
+        - 'decrement_number_of_users_followed_by_this_user'
         '''
         self.set_up_new_test_user()
         test_user = User.objects.get(username='testuser')
@@ -119,6 +127,10 @@ class PostTestCase(TestCase):
     Tests for Post model.
     '''
     def set_up_new_test_user(self):
+        '''
+        Helper method to create necessary User objects
+        for purpouse of testing class Post.
+        '''
         test_user = User.objects.create(
             username='testuser',
             email='testuser@testcase.com',
@@ -127,6 +139,10 @@ class PostTestCase(TestCase):
 
 
     def set_up_new_test_post(self):
+        '''
+        Helper method to create necessary Post objects
+        for purpouse of testing class Post.
+        '''
         self.set_up_new_test_user()
         test_user = User.objects.get(username='testuser')
 
