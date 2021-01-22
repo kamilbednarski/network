@@ -87,7 +87,12 @@ def latest_post_id_view(request):
 
 def all_posts_view(request):
     if request.method == "GET":
-        posts = Post.objects.all()
+        try:
+            posts = Post.objects.all()
+        except Post.DoesNotExist:
+            return JsonResponse({
+                "error": "Post not found."
+            }, safe=False, status=404)
         return JsonResponse([post.serialize() for post in posts], safe=False)
 
 
@@ -109,14 +114,14 @@ def single_post_view(request, post_id):
     '''
     try:
         post = Post.objects.get(id=post_id)
+    except ValueError:
+        return JsonResponse({
+            "error": "Bad request. 'id' expected to be a number."
+        }, safe=False, status=400)
     except Post.DoesNotExist:
         return JsonResponse({
             "error": "Post not found."
         }, safe=False, status=404)
-    except ValueError:
-        return JsonResponse({
-            "error": "Bad request."
-        }, safe=False, status=400)
 
     if request.method == "GET":
         return JsonResponse(post.serialize())
