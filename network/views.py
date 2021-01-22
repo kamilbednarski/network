@@ -113,6 +113,10 @@ def single_post_view(request, post_id):
         return JsonResponse({
             "error": "Post not found."
         }, safe=False, status=404)
+    except ValueError:
+        return JsonResponse({
+            "error": "Bad request."
+        }, safe=False, status=400)
 
     if request.method == "GET":
         return JsonResponse(post.serialize())

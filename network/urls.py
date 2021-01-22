@@ -11,5 +11,5 @@ urlpatterns = [
 
     path("post/all/latestid", views.latest_post_id_view, name="view_latest_post_id"),
     path("post/all", views.all_posts_view, name="view_all_posts"),
-    path("post/id/<int:post_id>", views.single_post_view, name="view_single_post_by_id")
+    path("post/id/<str:post_id>", views.single_post_view, name="view_single_post_by_id")
 ]
