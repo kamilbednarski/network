@@ -97,7 +97,7 @@ def all_posts_view(request):
 
 
 def single_post_view(request, post_id):
-    #TODO: Refactor this function - REST
+    #TODO: Refactor this function - REST, using Django REST Framework
     '''
     Returns JSON response, depending on what HTTP method was passed in request:
     - for method GET:
